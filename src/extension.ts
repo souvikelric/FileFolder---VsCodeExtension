@@ -54,6 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
 		statusItem.color = "#cf59f9";
 		statusItem.text=`❄️${outputString}`
 		statusItem.show();
+
+		const config = vscode.workspace.getConfiguration();
+		// console.log(config);
+
 		}
 
 	countAndShow()
