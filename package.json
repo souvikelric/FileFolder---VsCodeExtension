@@ -14,6 +14,19 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "settingObject",
+      "properties": {
+        "fileandfoldercounter.color": {
+          "type": "string",
+          "default": "#cf59f9"
+        },
+        "fileandfoldercounter.githubIncluded": {
+          "type": "boolean",
+          "default": "false"
+        }
+      }
+    },
     "commands": [
       {
         "command": "fileandfoldercounter.fileFolderCount",
