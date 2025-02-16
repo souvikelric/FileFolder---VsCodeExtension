@@ -2,6 +2,7 @@
   "name": "fileandfoldercounter",
   "displayName": "FileAndFolderCounter",
   "description": "counts the number of files and folders in the current open vs code folder",
+  "publisher": "Souvik",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
