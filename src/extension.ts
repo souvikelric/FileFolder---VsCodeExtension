@@ -19,22 +19,24 @@ export function activate(context: vscode.ExtensionContext) {
     }
     // vscode.window.showInformationMessage(workFolder);
     const config = vscode.workspace.getConfiguration("fileandfoldercounter");
-    const color = config.color;
-    const githubIncluded = config.githubIncluded;
-    console.log(githubIncluded);
+    const { color, githubIncluded, showSizeOnDisk, nodeModulesIncluded } =
+      config;
 
     const countFileFolders = (dirPath: string) => {
       let fileCount = 0;
       let folderCount = 0;
-
+      let memory = 0;
       const items = fs.readdirSync(dirPath);
       // vscode.window.showInformationMessage(String(items.length));
 
       items.forEach((item) => {
-        console.log(item);
         const fullPath = path.resolve(dirPath, item);
         const stat = fs.statSync(fullPath);
         if (item === ".git" && githubIncluded === false) {
+          return;
+        }
+        if (item === "node_modules" && nodeModulesIncluded === false) {
+          console.log(item);
           return;
         } else if (stat.isDirectory()) {
           folderCount++;
@@ -43,12 +45,25 @@ export function activate(context: vscode.ExtensionContext) {
           folderCount += nestedFolders.folderCount;
         } else if (stat.isFile()) {
           fileCount++;
+          memory += stat.size;
         }
       });
-      return { fileCount, folderCount };
+      return { fileCount, folderCount, memory };
     };
-    const { fileCount, folderCount } = countFileFolders(workFolder);
-    const outputString = `files : ${fileCount} folders : ${folderCount}`;
+    let strMem = "";
+    let { fileCount, folderCount, memory } = countFileFolders(workFolder);
+    if (showSizeOnDisk) {
+      if (memory > 1024) {
+        memory = memory / 1024;
+        strMem = memory.toFixed(2) + " MB";
+      }
+      if (memory > 1024) {
+        memory = memory / 1024;
+        strMem = memory.toFixed(2) + " GB";
+      }
+      strMem = ` Size : ${strMem}`;
+    }
+    const outputString = `files : ${fileCount} folders : ${folderCount}${strMem}`;
 
     // To show it in the active Terminal
     //vscode.window.activeTerminal?.sendText(`echo ${outputString}`,true);
@@ -82,10 +97,21 @@ export function activate(context: vscode.ExtensionContext) {
 
   // checking if user changedConfiguration
   vscode.workspace.onDidChangeConfiguration((e) => {
-    if (e.affectsConfiguration("fileandfoldercounter")) {
+    const changedEvent = e.affectsConfiguration("fileandfoldercounter");
+    if (changedEvent) {
       vscode.window.showInformationMessage(
         "File&Folder Counter Config changed. Recalculating..."
       );
+      if (e.affectsConfiguration("fileandfoldercounter.nodeModulesIncluded")) {
+        let workingFolder = vscode.workspace.workspaceFolders
+          ? vscode.workspace.workspaceFolders[0].uri.fsPath
+          : "";
+        if (!fs.existsSync(path.join(workingFolder, "node_modules"))) {
+          vscode.window.showErrorMessage(
+            "No Node Modules folder located in current folder"
+          );
+        }
+      }
       countAndShow();
     }
   });

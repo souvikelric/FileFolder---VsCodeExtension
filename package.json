@@ -24,6 +24,14 @@
         "fileandfoldercounter.githubIncluded": {
           "type": "boolean",
           "default": "false"
+        },
+        "fileandfoldercounter.nodeModulesIncluded": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "fileandfoldercounter.showSizeOnDisk": {
+          "type": "boolean",
+          "default": "false"
         }
       }
     },
