@@ -10,6 +10,9 @@
   "categories": [
     "Other"
   ],
+  "repository": {
+    "url": "https://github.com/souvikelric/FileFolder---VsCodeExtension"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
