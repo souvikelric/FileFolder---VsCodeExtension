@@ -21,15 +21,20 @@ export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration("fileandfoldercounter");
     const { color, githubIncluded, showSizeOnDisk, nodeModulesIncluded } =
       config;
+    let totalMemory = 0;
 
     const countFileFolders = (dirPath: string) => {
       let fileCount = 0;
       let folderCount = 0;
-      let memory = 0;
+
       const items = fs.readdirSync(dirPath);
       // vscode.window.showInformationMessage(String(items.length));
 
       items.forEach((item) => {
+        // if (item === "picture1.jpg") {
+        //   console.log(item);
+        //   console.log(fs.statSync(path.resolve(dirPath, item)).size);
+        // }
         const fullPath = path.resolve(dirPath, item);
         const stat = fs.statSync(fullPath);
         if (item === ".git" && githubIncluded === false) {
@@ -45,21 +50,27 @@ export function activate(context: vscode.ExtensionContext) {
           folderCount += nestedFolders.folderCount;
         } else if (stat.isFile()) {
           fileCount++;
-          memory += stat.size;
+          //for debugging
+          // console.log(stat.size / 1024 / 1024, item, "memory : ", totalMemory);
+          totalMemory += stat.size;
         }
       });
-      return { fileCount, folderCount, memory };
+      return { fileCount, folderCount, totalMemory };
     };
     let strMem = "";
-    let { fileCount, folderCount, memory } = countFileFolders(workFolder);
+    let {
+      fileCount,
+      folderCount,
+      totalMemory: memory,
+    } = countFileFolders(workFolder);
     if (showSizeOnDisk) {
       if (memory > 1024) {
         memory = memory / 1024;
-        strMem = memory.toFixed(2) + " MB";
+        strMem = memory.toFixed(2) + " KB";
       }
       if (memory > 1024) {
         memory = memory / 1024;
-        strMem = memory.toFixed(2) + " GB";
+        strMem = memory.toFixed(2) + " MB";
       }
       strMem = ` Size : ${strMem}`;
     }
