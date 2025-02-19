@@ -43,7 +43,7 @@
     "commands": [
       {
         "command": "fileandfoldercounter.fileFolderCount",
-        "title": "Count Files and Folders"
+        "title": "ffc : Count Files and Folders"
       }
     ]
   },

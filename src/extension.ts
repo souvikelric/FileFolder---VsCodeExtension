@@ -38,6 +38,9 @@ export function activate(context: vscode.ExtensionContext) {
     );
   }
 
+  let lastFilePath: string;
+  let lastFolderPath: string;
+
   const statusItem = vscode.window.createStatusBarItem();
 
   const countAndShow = () => {
@@ -145,14 +148,23 @@ export function activate(context: vscode.ExtensionContext) {
 
     statusItem.text = `❄️ ${outputString}`;
     statusItem.show();
-
-    // const config = vscode.workspace.getConfiguration();
-    // console.log(config);
   };
 
   countAndShow();
 
-  vscode.workspace.onDidCreateFiles(() => {
+  vscode.workspace.onDidCreateFiles((event) => {
+    // const workFolder = vscode.workspace.workspaceFolders
+    //   ? vscode.workspace.workspaceFolders[0].uri.fsPath
+    //   : "";
+    // let baseFolderPathlength = workFolder.split("/").length;
+    let lastCreatedPath = event.files[0].path;
+    if (lastCreatedPath.includes(".")) {
+      lastFilePath = lastCreatedPath;
+    } else {
+      lastFolderPath = lastCreatedPath;
+    }
+    // logging the last deleted file and folder
+    console.log(lastFilePath, lastFolderPath);
     countAndShow();
   });
 
@@ -184,11 +196,6 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     "fileandfoldercounter.fileFolderCount",
     () => {
-      // Testing some functions and properties
-      // let currWorkspace = vscode.workspace.name as string
-      // vscode.window.showInformationMessage(currWorkspace);
-      // vscode.window.showErrorMessage("This is a test Error");
-
       countAndShow();
     }
   );
