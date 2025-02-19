@@ -7,9 +7,41 @@ export function activate(context: vscode.ExtensionContext) {
   //Testing a console log
   // let folder = vscode.workspace.workspaceFolders?.[0].name
   // console.log(folder)
+
+  // function to check if color value provided is a valid hex code or not
+  function checkHex(hexcode: string) {
+    let len = hexcode.length;
+    if (len != 7) return false;
+    if (hexcode[0] !== "#") return false;
+    let allChars = hexcode.split("");
+    allChars.shift();
+    const validChars = [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+    ];
+    return allChars.every(
+      (ac: any) => validChars.find((vc) => vc === ac) !== undefined
+    );
+  }
+
   const statusItem = vscode.window.createStatusBarItem();
 
   const countAndShow = () => {
+    statusItem.text = `$(sync~spin) Calculating...`;
     const workFolder = vscode.workspace.workspaceFolders
       ? vscode.workspace.workspaceFolders[0].uri.fsPath
       : "";
@@ -87,8 +119,30 @@ export function activate(context: vscode.ExtensionContext) {
 
     // console.log(workFolder);
 
-    statusItem.backgroundColor = new vscode.ThemeColor("#fff");
-    statusItem.color = color;
+    // statusItem.backgroundColor = new vscode.ThemeColor("#fff");
+    // check if color setting is valid or not
+    // if not change it back to default color
+    if (checkHex(color)) {
+      statusItem.color = color;
+    } else {
+      config
+        .update(
+          "color",
+          defaultSettings.color,
+          vscode.ConfigurationTarget.Global
+        )
+        .then(
+          () => {
+            vscode.window.showErrorMessage(
+              "Invalid value entered. Setting color value to default value."
+            );
+          },
+          (err) => {
+            console.error("Error updating setting:", err);
+          }
+        );
+    }
+
     statusItem.text = `❄️ ${outputString}`;
     statusItem.show();
 
